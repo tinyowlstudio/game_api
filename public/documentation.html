@@ -1,18 +1,185 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Database Documentation</title>
 
-</head>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+      .container {
+        margin: 10px 0;
+        display: grid;
+        grid-template-columns: 1fr .7fr 1fr 1fr 1fr 1fr;
+        width: 1500px;
+      }
+      .item {
+        justify-self: stretch;
+        padding: 20px;
+        border: solid .5px rgb(143, 143, 143);
+        line-height: 1.3em;
+        font-size: .9em;
+      }
+      .header {
+        font-size: 1em;
+        font-weight: bold;
+        width: 100%;
+        background-color: rgb(199, 232, 232);
+      }
+    </style>
+  </head>
 
-<body>
+  <body>
+    This is a simple database for video games. <br /><br>
 
-    This is a simple database for video games.
+    <!-- <br />
+    Structures will be as follows:<br />
+    {<br />
+        &ensp;name: "game name"<br />
+        &ensp;image: "image url"<br />
+        &ensp;developer: {
+            &ensp; &emsp; name: "developer name",<br />
+            &ensp; &emsp; year: year founded,<br />
+            &ensp; &emsp; description: "description of the developer"<br />
+        &ensp; }<br />
+        &ensp;year: "year released"<br />
+        &ensp;platform: [platform array]<br />
+        &ensp;genre: {
+            &ensp; &emsp; name: "genre name",<br />
+            &ensp; &emsp; description: "description of the genre"<br />
+        &ensp; }<br />
+    } -->
 
-</body>
+    <div class="container">
+        <div class="item header">Business Logic</div>
+        <div class="item header">URL</div>
+      <div class="item header">HTTP Method</div>
+      <div class="item header">Query Parameters</div>
+      <div class="item header">Format of Request Data</div>
+      <div class="item header">Format of Response Data</div>
 
+      <div class="item">Get list of games</div>
+      <div class="item">/games</div>
+      <div class="item">GET</div>
+      <div class="item">None</div>
+      <div class="item">None</div>
+      <div class="item">A JSON object with the whole list of games</div>
+
+      <div class="item">Get the data of one game</div>
+      <div class="item">/games/:name</div>
+      <div class="item">GET</div>
+      <div class="item">:name</div>
+      <div class="item">None</div>
+      <div class="item">
+        A JSON object with all the data related to a single game ie: <br><br>
+        {<br />
+            &ensp;Name: "God of War Ragnarok"<br />
+            &ensp;Image: "https://m.media-amazon.com/images/I/817y77i7EFL._AC_UF1000,1000_QL80_.jpg",<br />
+            &ensp;Developer: {<br>
+                &ensp; &emsp; Name: "Santa Monica Studio",<br />
+                &ensp; &emsp; Year: 1999,<br />
+                &ensp; &emsp; Description: "Santa Monica Studio is an American video game developer..."<br />
+            &ensp; }<br />
+            &ensp;Year: 2022,<br />
+            &ensp;Platform: ["Playstation 4","Playstation 5"],<br />
+            &ensp;Genre: { <br>
+                &ensp; &emsp; Name: "Action Adventure",<br />
+                &ensp; &emsp; Description: "An action adventure game can be defined as..."<br />
+            &ensp; }<br />
+        }
+      </div>
+
+      <div class="item">Get the data of the developer of the game</div>
+      <div class="item">/games/developers/:developerName</div>
+      <div class="item">GET</div>
+      <div class="item">:developerName</div>
+      <div class="item">None</div>
+      <div class="item">
+        A JSON object with all the info about the developer ie: <br><br>
+        &ensp;{<br>
+            &ensp; &emsp; Name: "Santa Monica Studio",<br />
+            &ensp; &emsp; Year: 1999,<br />
+            &ensp; &emsp; Description: "Santa Monica Studio is an American video game developer..."<br />
+        &ensp; }<br />
+      </div>
+
+      <div class="item">Get the data of the genre of the game</div>
+      <div class="item">/games/genre/:genreName</div>
+      <div class="item">GET</div>
+      <div class="item">:genreName</div>
+      <div class="item">None</div>
+      <div class="item">
+        A JSON object with all the info about the genre ie: <br><br>
+        &ensp;{
+            &ensp; &emsp; Name: "Action Adventure",<br />
+            &ensp; &emsp; Description: "An action adventure game can be..."<br />
+        &ensp; }
+      </div>
+
+      <div class="item">See all users</div>
+      <div class="item">/users</div>
+      <div class="item">GET</div>
+      <div class="item">None</div>
+      <div class="item">None</div>
+      <div class="item">
+        A JSON object with the whole list of users and their data <br><br>
+      </div>
+
+      <div class="item">Add a new user</div>
+      <div class="item">/users</div>
+      <div class="item">POST</div>
+      <div class="item">None</div>
+      <div class="item">A JSON object with their name and an empty array for their favorite games ie: <br><br>
+        &ensp;{<br>
+            &ensp; &emsp; name: "Joe",<br />
+            &ensp; &emsp; favoriteGames: []<br />
+        &ensp; }</div>
+        <div class="item">A JSON object with their id, name and an empty array for their favorite games ie: <br><br>
+            &ensp;{<br>
+                &ensp; &emsp; id: 1,<br />
+                &ensp; &emsp; name: "Joe",<br />
+                &ensp; &emsp; favoriteGames: []<br />
+            &ensp; }
+          </div>
+
+          <div class="item">Add a new game into user's favorite games</div>
+      <div class="item">/users/:id/:gameName</div>
+      <div class="item">POST</div>
+      <div class="item">:id, :gameName</div>
+      <div class="item">None</div>
+        <div class="item">Confirmation message that the game was added to the user's favorite game list</div>
+
+        <div class="item">Change user's name using ID</div>
+      <div class="item">/users/:id</div>
+      <div class="item">PUT</div>
+      <div class="item">:id</div>
+      <div class="item">None</div>
+      <div class="item">A JSON object with their id, updated name and an empty array for their favorite games ie: <br><br>
+        &ensp;{<br>
+            &ensp; &emsp; id: 1,<br />
+            &ensp; &emsp; name: "Joe Updated Name",<br />
+            &ensp; &emsp; favoriteGames: []<br />
+        &ensp; }
+      </div>
+
+      <div class="item">Remove game from user's list</div>
+      <div class="item">/users/:id/:gameName</div>
+      <div class="item">DELETE</div>
+      <div class="item">:id, :gameName</div>
+      <div class="item">None</div>
+        <div class="item">Confirmation message that the game was removed from the user's favorite game list</div>
+
+        <div class="item">Remove game from user from users array</div>
+      <div class="item">/users/:id</div>
+      <div class="item">DELETE</div>
+      <div class="item">:id</div>
+      <div class="item">None</div>
+        <div class="item">Confirmation message that user was removed from the array</div>
+
+
+    </div>
+  </body>
 </html>
