@@ -20,6 +20,24 @@ app.use(bodyParser.json());
 //logger for terminal only, not to write in log.txt
 app.use(morgan("common"));
 
+//Error Handling
+// MUST BE PLACED BEFORE app.listen
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+
+//links auth.js
+let auth = require('./auth')(app);
+//link passport module and js file
+const passport = require('passport');
+require('./passport');
+
+
+
+
+
 
 
 
@@ -57,7 +75,13 @@ app.post('/users', async (req, res) => {
 
 // CREATE
 // push a new game onto the favorite games array
-app.post('/users/:Username/games/:gameID', async (req, res) => {
+app.post('/users/:Username/games/:gameID', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  //If the user isn't the name user inputted in :Username, it denies the user
+  if(req.user.Username !== req.params.Username){
+    return res.status(400).send('Permission denied');
+}
+
+
   await Users.findOneAndUpdate({ Username: req.params.Username }, { //find the user collection using the username
      $push: { FavoriteGames: req.params.gameID }  //add the new game onto the favorite game list
    },
@@ -73,7 +97,12 @@ app.post('/users/:Username/games/:gameID', async (req, res) => {
 
 // READ
 // To get all users
-app.get('/users', async (req, res) => {
+app.get('/users', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  //If the user isn't the name user inputted in :Username, it denies the user
+  if(req.user.Username !== req.params.Username){
+    return res.status(400).send('Permission denied');
+}
+
   await Users.find() //grabs all documents in user collection
     .then((users) => {
       res.status(201).json(users);
@@ -86,7 +115,12 @@ app.get('/users', async (req, res) => {
 
 // READ
 // get a single user using the username
-app.get('/users/:Username', async (req, res) => {
+app.get('/users/:Username', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  //If the user isn't the name user inputted in :Username, it denies the user
+  if(req.user.Username !== req.params.Username){
+    return res.status(400).send('Permission denied');
+}
+
   await Users.findOne({ Username: req.params.Username }) //finds the collection and uses username as the parameter
     .then((user) => {
       res.json(user); //then return the user
@@ -99,7 +133,13 @@ app.get('/users/:Username', async (req, res) => {
 
 // UPDATE
 // update user name using username
-app.put('/users/:Username', async (req, res) => {
+app.put('/users/:Username', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  //If the user isn't the name user inputted in :Username, it denies the user
+  if(req.user.Username !== req.params.Username){
+    return res.status(400).send('Permission denied');
+}
+
+  // Otherwise, continue as usual
   await Users.findOneAndUpdate({ Username: req.params.Username }, //find the collection with username as the parameter
     { $set: //then set(change) to the new data
     {
@@ -122,7 +162,12 @@ app.put('/users/:Username', async (req, res) => {
 
 // DELETE
 // remove game from the array
-app.delete('/users/:Username/games/:GameID', async (req, res) => {
+app.delete('/users/:Username/games/:GameID', passport.authenticate('jwt', { session: false }),  async (req, res) => {
+  //If the user isn't the name user inputted in :Username, it denies the user
+  if(req.user.Username !== req.params.Username){
+    return res.status(400).send('Permission denied');
+}
+
   await Users.findOneAndUpdate({ Username: req.params.Username }, { //find the user collection using the username
      $pull: { FavoriteGames: req.params.GameID }  //remove the game from the favorite game list
    },
@@ -138,7 +183,12 @@ app.delete('/users/:Username/games/:GameID', async (req, res) => {
 
 // DELETE
 // remove user from array
-app.delete('/users/:Username', async (req, res) => {
+app.delete('/users/:Username', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  //If the user isn't the name user inputted in :Username, it denies the user
+  if(req.user.Username !== req.params.Username){
+    return res.status(400).send('Permission denied');
+}
+
   await Users.findOneAndRemove({ Username: req.params.Username }) //find the user using username and delete them
     .then((user) => {
       if (!user) { //if the username can't be found/doesnt exist
@@ -173,7 +223,7 @@ app.get("/", (req, res) => {
 app.use(express.static("public"));
 
 // get all games
-app.get("/games", async (req, res) => {
+app.get("/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   Games.find()
   .then((games)=> {
     res.status(200).json(games);
@@ -185,7 +235,7 @@ app.get("/games", async (req, res) => {
 });
 
 // get all data of a single game
-app.get('/games/:title', async (req, res) => { 
+app.get('/games/:title', passport.authenticate('jwt', { session: false }), async (req, res) => { 
   await Games.findOne({ Title: req.params.title }) //finds the collection and uses title of the game as the parameter
     .then((game) => {
       if (game){
@@ -202,7 +252,7 @@ app.get('/games/:title', async (req, res) => {
 });
 
 // get all data of a single developer
-app.get('/developers/:developerName', async (req, res) => { // NOTE TO SELF: req.params.developerName is derived from :developerName
+app.get('/developers/:developerName', passport.authenticate('jwt', { session: false }), async (req, res) => { // NOTE TO SELF: req.params.developerName is derived from :developerName
   await Games.findOne({ "Developer.Name": req.params.developerName }) //finds the first game with the same developer name as the parameter
     .then((game) => {
       if (game) {
@@ -219,7 +269,7 @@ app.get('/developers/:developerName', async (req, res) => { // NOTE TO SELF: req
 
 
 // get all games of a certain developer
-app.get("/developer/:developerName/games", async (req, res) => {
+app.get("/developers/:developerName/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Games.find({ "Developer.Name": req.params.developerName }) //finds the all games that lists the developer
     .then((games) => { 
       if (games.length > 0){ //if there is at least 1 game 
@@ -236,7 +286,7 @@ app.get("/developer/:developerName/games", async (req, res) => {
 });
 
 // get all data of a single genre
-app.get("/genres/:genreName", async (req, res) => {
+app.get("/genres/:genreName", passport.authenticate('jwt', { session: false }), async (req, res) => {
   let selectedGenre = req.params.genreName;
   await Games.findOne({ "Genre.Name": selectedGenre }) //finds the first game that lists the genre
     .then((game) => {
@@ -255,7 +305,7 @@ app.get("/genres/:genreName", async (req, res) => {
 });
 
 // get all games of a single genre
-app.get("/genres/:genreName/games", async (req, res) => {
+app.get("/genres/:genreName/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Games.find({ "Genre.Name": req.params.genreName }) //finds the all games that lists the genre
     .then((games) => { 
       if (games.length > 0){ //if there is at least 1 game 
@@ -290,7 +340,7 @@ app.get("/genres/:genreName/games", async (req, res) => {
 // });
 
 // get all games of a certain platform
-app.get("/platform/:platformName/games", async (req, res) => {
+app.get("/platform/:platformName/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Games.find({ Platform: req.params.platformName }) //finds the all games that lists the genre
     .then((games) => { 
       if (games.length > 0){ //if there is at least 1 game 
@@ -307,7 +357,7 @@ app.get("/platform/:platformName/games", async (req, res) => {
 });
 
 // get all games released on a specific year
-app.get("/releaseyear/:releaseYear/games", async (req, res) => {
+app.get("/releaseyear/:releaseYear/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Games.find({ ReleaseYear: req.params.releaseYear }) //finds the all games that have that year
     .then((games) => { 
       if (games.length > 0){ //if there is at least 1 game 
@@ -324,7 +374,7 @@ app.get("/releaseyear/:releaseYear/games", async (req, res) => {
 });
 
 // get all games of a certain series
-app.get("/series/:seriesName/games", async (req, res) => {
+app.get("/series/:seriesName/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Games.find({ Series: req.params.seriesName }) //finds the all games that have that year
     .then((games) => { 
       if (games.length > 0){ //if there is at least 1 game 
@@ -341,7 +391,7 @@ app.get("/series/:seriesName/games", async (req, res) => {
 });
 
 //show all featured games
-app.get("/featured", async (req, res) => {
+app.get("/featured", passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Games.find({Featured : true})
   .then((games)=> {
     res.status(200).json(games);
@@ -371,14 +421,6 @@ app.get("/featured", async (req, res) => {
 
 
 
-
-//Error Handling
-// MUST BE PLACED BEFORE app.listen
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-);
 
 app.use(bodyParser.json());
 app.use(methodOverride());
