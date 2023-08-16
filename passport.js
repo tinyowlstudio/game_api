@@ -9,7 +9,7 @@ let Users = Models.User,
 
 passport.use(
   new LocalStrategy( 
-    {
+    { //login
       usernameField: 'Username',
       passwordField: 'Password',
     },
@@ -23,7 +23,11 @@ passport.use(
             message: 'Incorrect username or password.',
           });
         }
-        console.log('finished');
+        if (!user.validatePassword(password)) {//checks for password match
+          console.log('incorrect password');
+          return callback(null, false, { message: 'Incorrect password.' });
+        }
+        console.log('finished'); //if everything is fine
         return callback(null, user);
       })
       .catch((error) => {

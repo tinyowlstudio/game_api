@@ -28,11 +28,33 @@ app.use(
   })
 );
 
+
+//Check origin
+const cors = require('cors');
+app.use(cors()); //allows all origins
+
+// //if you only want a specific origin
+// let allowedOrigins = ['http://localhost:8080'];
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     if(!origin) return callback(null, true);
+//     if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
+//       let message = `The CORS policy for this application doesn't allow access from origin ` + origin;
+//       return callback(new Error(message ), false);
+//     }
+//     return callback(null, true);
+//   }
+// }));
+
+
 //links auth.js
 let auth = require('./auth')(app);
 //link passport module and js file
 const passport = require('passport');
 require('./passport');
+
+//Server-side validation
+const { check, validationResult } = require('express-validator');
 
 
 
@@ -46,7 +68,29 @@ require('./passport');
 //=========================================
 // CREATE
 //push new user onto array
-app.post('/users', async (req, res) => {
+app.post('/users', 
+// Validation logic here for request
+  //you can either use a chain of methods like .not().isEmpty()
+  //which means "opposite of isEmpty" in plain english "is not empty"
+  //or use .isLength({min: 5}) which means
+  //minimum value of 5 characters are only allowed
+  [
+    check('Username', 'Username must be at least 5 characters long').isLength({min: 5}),
+    check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric(),
+    check('Password', 'Password is required').not().isEmpty(),
+    check('Email', 'Email does not appear to be valid').isEmail()
+  ],
+async (req, res) => {
+// check the validation object for errors
+let errors = validationResult(req);
+//if there are errors, do not execute the rest of the code
+if (!errors.isEmpty()) { //means if errors are not empty
+  return res.status(422).json({ errors: errors.array() });
+}
+
+  //encrypts the password and stores it in a variable
+  let hashedPassword = Users.hashPassword(req.body.Password);
+
   await Users.findOne({ Username: req.body.Username }) //check to see if the username exists
     .then((user) => { //if it does then say that the username already exists
       if (user) {
@@ -55,7 +99,7 @@ app.post('/users', async (req, res) => {
         Users 
           .create({
             Username: req.body.Username, //req.body is something the user sends
-            Password: req.body.Password,
+            Password: hashedPassword, //store the encrypted password
             Email: req.body.Email,
             Birthday: req.body.Birthday
           })
@@ -133,22 +177,50 @@ app.get('/users/:Username', passport.authenticate('jwt', { session: false }), as
 
 // UPDATE
 // update user name using username
-app.put('/users/:Username', passport.authenticate('jwt', { session: false }), async (req, res) => {
+app.put('/users/:Username', 
+[//optional is placed incase the field is not included in the set to update
+  check('Username', 'Username must be at least 5 characters long').isLength({min: 5}).optional(),
+  check('Username', 'Username contains non alphanumeric characters - not allowed.').isAlphanumeric().optional(),
+  check('Password', 'Password is required').not().isEmpty().optional(),
+  check('Email', 'Email does not appear to be valid').isEmail().optional()
+],
+passport.authenticate('jwt', { session: false }), async (req, res) => {
+// check the validation object for errors
+let errors = validationResult(req);
+//if there are errors, do not execute the rest of the code
+if (!errors.isEmpty()) { //means if errors are not empty
+  return res.status(422).json({ errors: errors.array() });
+}
+
   //If the user isn't the name user inputted in :Username, it denies the user
   if(req.user.Username !== req.params.Username){
     return res.status(400).send('Permission denied');
 }
 
-  // Otherwise, continue as usual
-  await Users.findOneAndUpdate({ Username: req.params.Username }, //find the collection with username as the parameter
-    { $set: //then set(change) to the new data
-    {
-      Username: req.body.Username,
-      Password: req.body.Password,
-      Email: req.body.Email,
-      Birthday: req.body.Birthday
-    }
-  },
+//the hashed password function will create and error
+//if the field is not included in the update, so the 
+//code needs to accomodate for any missing fields if
+//the user doesn't need to update everything
+let updates = {};
+if (req.body.Username) {
+  updates.Username = req.body.Username;
+}
+if (req.body.Password) {
+  //hashed function placed here only if the password field is included
+  const hashedPassword = Users.hashPassword(req.body.Password); 
+  updates.Password = hashedPassword;
+}
+if (req.body.Email) {
+  updates.Email = req.body.Email;
+}
+if (req.body.Birthday) {
+  updates.Birthday = req.body.Birthday;
+}
+
+// Update only the specified fields
+await Users.findOneAndUpdate(
+  { Username: req.params.Username },
+  { $set: updates },
   { new: true }) // This line makes sure that the updated document is returned
   .then((updatedUser) => {
     res.json(updatedUser); //show the updated user
