@@ -12,7 +12,10 @@ const mongoose = require('mongoose');
 const Models = require('./models.js');
 const Games = Models.Game;
 const Users = Models.User;
-mongoose.connect('mongodb://localhost:27017/videogameDB', { useNewUrlParser: true, useUnifiedTopology: true });
+// //local database
+// mongoose.connect('mongodb://localhost:27017/videogameDB', { useNewUrlParser: true, useUnifiedTopology: true });
+//online database
+mongoose.connect( process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.use(bodyParser.json());
 
