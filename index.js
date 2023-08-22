@@ -14,8 +14,8 @@ const Games = Models.Game;
 const Users = Models.User;
 // //local database
 // mongoose.connect('mongodb://localhost:27017/videogameDB', { useNewUrlParser: true, useUnifiedTopology: true });
-//online database
-mongoose.connect( process.env.CONNECTION_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+//connect to either local or online DB based on where its being run
+mongoose.connect( process.env.CONNECTION_URI || 'mongodb://localhost:27017/videogameDB', { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.use(bodyParser.json());
 
@@ -36,18 +36,6 @@ app.use(
 const cors = require('cors');
 app.use(cors()); //allows all origins
 
-// //if you only want a specific origin
-// let allowedOrigins = ['http://localhost:8080'];
-// app.use(cors({
-//   origin: (origin, callback) => {
-//     if(!origin) return callback(null, true);
-//     if(allowedOrigins.indexOf(origin) === -1){ // If a specific origin isn’t found on the list of allowed origins
-//       let message = `The CORS policy for this application doesn't allow access from origin ` + origin;
-//       return callback(new Error(message ), false);
-//     }
-//     return callback(null, true);
-//   }
-// }));
 
 
 //links auth.js
@@ -298,7 +286,7 @@ app.get("/", (req, res) => {
 app.use(express.static("public"));
 
 // get all games
-app.get("/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
+app.get("/games", async (req, res) => {
   Games.find()
   .then((games)=> {
     res.status(200).json(games);
@@ -496,18 +484,14 @@ app.get("/featured", passport.authenticate('jwt', { session: false }), async (re
 
 
 
-
-app.use(bodyParser.json());
-app.use(methodOverride());
+//check if I need these two still
+//app.use(bodyParser.json()); //already listed up top
+//app.use(methodOverride()); //was part of an exercise, might not need anymore?
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
 });
-
-// app.listen(8080, () => {
-//   console.log("Your app is listening on port 8080.");
-// });
 
 const port = process.env.PORT || 8080;
 app.listen(port, '0.0.0.0',() => {
