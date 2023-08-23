@@ -82,7 +82,7 @@ if (!errors.isEmpty()) { //means if errors are not empty
   //encrypts the password and stores it in a variable
   let hashedPassword = Users.hashPassword(req.body.password);
 
-  await Users.findOne({ Username: req.body.username }) //check to see if the username exists
+  await Users.findOne({ username: req.body.username }) //check to see if the username exists
     .then((user) => { //if it does then say that the username already exists
       if (user) {
         return res.status(400).send(req.body.username + 'already exists');
@@ -111,7 +111,7 @@ if (!errors.isEmpty()) { //means if errors are not empty
 // CREATE
 // push a new game onto the favorite games array
 app.post('/users/:username/games/:gameID', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  //If the user isn't the name user inputted in :Username, it denies the user
+  //If the user isn't the name user inputted in :username, it denies the user
   if(req.user.username !== req.params.username){
     return res.status(400).send('Permission denied');
 }
@@ -133,7 +133,7 @@ app.post('/users/:username/games/:gameID', passport.authenticate('jwt', { sessio
 // READ
 // To get all users
 app.get('/users', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  //If the user isn't the name user inputted in :Username, it denies the user
+  //If the user isn't the name user inputted in :username, it denies the user
   if(req.user.username !== req.params.username){
     return res.status(400).send('Permission denied');
 }
@@ -151,12 +151,12 @@ app.get('/users', passport.authenticate('jwt', { session: false }), async (req, 
 // READ
 // get a single user using the username
 app.get('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  //If the user isn't the name user inputted in :Username, it denies the user
+  //If the user isn't the name user inputted in :username, it denies the user
   if(req.user.username !== req.params.username){
     return res.status(400).send('Permission denied');
 }
 
-  await Users.findOne({ Username: req.params.username }) //finds the collection and uses username as the parameter
+  await Users.findOne({ username: req.params.username }) //finds the collection and uses username as the parameter
     .then((user) => {
       res.json(user); //then return the user
     })
@@ -183,7 +183,7 @@ if (!errors.isEmpty()) { //means if errors are not empty
   return res.status(422).json({ errors: errors.array() });
 }
 
-  //If the user isn't the name user inputted in :Username, it denies the user
+  //If the user isn't the name user inputted in :username, it denies the user
   if(req.user.username !== req.params.username){
     return res.status(400).send('Permission denied');
 }
@@ -226,7 +226,7 @@ await Users.findOneAndUpdate(
 // DELETE
 // remove game from the array
 app.delete('/users/:username/games/:gameID', passport.authenticate('jwt', { session: false }),  async (req, res) => {
-  //If the user isn't the name user inputted in :Username, it denies the user
+  //If the user isn't the name user inputted in :username, it denies the user
   if(req.user.username !== req.params.username){
     return res.status(400).send('Permission denied');
 }
@@ -247,12 +247,12 @@ app.delete('/users/:username/games/:gameID', passport.authenticate('jwt', { sess
 // DELETE
 // remove user from array
 app.delete('/users/:username', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  //If the user isn't the name user inputted in :Username, it denies the user
+  //If the user isn't the name user inputted in :username, it denies the user
   if(req.user.username !== req.params.username){
     return res.status(400).send('Permission denied');
 }
 
-  await Users.findOneAndRemove({ Username: req.params.username }) //find the user using username and delete them
+  await Users.findOneAndRemove({ username: req.params.username }) //find the user using username and delete them
     .then((user) => {
       if (!user) { //if the username can't be found/doesnt exist
         res.status(400).send(req.params.username + ' was not found');
@@ -353,7 +353,7 @@ app.get("/genres/:genreName", passport.authenticate('jwt', { session: false }), 
   let selectedGenre = req.params.genreName;
   await Games.findOne({ "genre.name": selectedGenre }) //finds the first game that lists the genre
     .then((game) => {
-      const foundGenre = game.Genre.find(genre => genre.Name === selectedGenre) //find the genre in the array using the name
+      const foundGenre = game.genre.find(genre => genre.name === selectedGenre) //find the genre in the array using the name
       if (foundGenre){
         res.status(200).json(foundGenre);
       }
