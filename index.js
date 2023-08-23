@@ -298,7 +298,7 @@ app.get("/games", async (req, res) => {
 });
 
 // get all data of a single game
-app.get('/games/:title', passport.authenticate('jwt', { session: false }), async (req, res) => { 
+app.get('/games/:title', async (req, res) => { 
   await Games.findOne({ Title: req.params.title }) //finds the collection and uses title of the game as the parameter
     .then((game) => {
       if (game){
