@@ -10,12 +10,12 @@ let Users = Models.User,
 passport.use(
   new LocalStrategy( 
     { //login
-      usernameField: 'Username',
-      passwordField: 'Password',
+      usernameField: 'username',
+      passwordField: 'password',
     },
     async (username, password, callback) => { 
       console.log(`${username} ${password}`);
-      await Users.findOne({ Username: username }) //checks database for username
+      await Users.findOne({ username: username }) //checks database for username
       .then((user) => {
         if (!user) { //if user doesnt exist
           console.log('incorrect username');

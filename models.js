@@ -3,30 +3,30 @@ const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 
 let gameSchema = mongoose.Schema({
-    Title: {type: String, required: true},
-    Image: String,
-    Description: {type: String, required: true},
-    ReleaseYear: Number,
-    Platform: [String],
-    Developer: {
-        Name: String,
-        FoundedYear: Number,
-        Description: String
+    title: {type: String, required: true},
+    image: String,
+    description: {type: String, required: true},
+    releaseYear: Number,
+    platform: [String],
+    developer: {
+        name: String,
+        foundedYear: Number,
+        description: String
     },
-    Genre:[{
-        Name: String,
-        Description: String
+    genre:[{
+        name: String,
+        description: String
     }],
-    Series: String,
-    Featured: Boolean
+    series: String,
+    featured: Boolean
 });
 
 let userSchema = mongoose.Schema({
-    Username: {type: String, required: true},
-    Password: {type: String, required: true},
-    Email: {type: String, required: true},
-    Birthday: Date, 
-    FavoriteGames: [{type: mongoose.Schema.Types.ObjectId, ref: "Game"}]
+    username: {type: String, required: true},
+    password: {type: String, required: true},
+    email: {type: String, required: true},
+    birthday: Date, 
+    favoriteGames: [{type: mongoose.Schema.Types.ObjectId, ref: "Game"}]
 });
 
 //encrypt password
@@ -35,7 +35,7 @@ userSchema.statics.hashPassword = (password) => {
   };
 //validate password using encryption
   userSchema.methods.validatePassword = function(password) {
-    return bcrypt.compareSync(password, this.Password);
+    return bcrypt.compareSync(password, this.password);
   };
 
 let Game = mongoose.model("Game", gameSchema);
