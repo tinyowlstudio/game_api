@@ -286,7 +286,7 @@ app.get("/", (req, res) => {
 app.use(express.static("public"));
 
 // get all games
-app.get("/games", async (req, res) => {
+app.get("/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   Games.find()
   .then((games)=> {
     res.status(200).json(games);
@@ -298,7 +298,7 @@ app.get("/games", async (req, res) => {
 });
 
 // get all data of a single game
-app.get('/games/:title', async (req, res) => { 
+app.get('/games/:title', passport.authenticate('jwt', { session: false }), async (req, res) => { 
   await Games.findOne({ title: req.params.title }) //finds the collection and uses title of the game as the parameter
     .then((game) => {
       if (game){
