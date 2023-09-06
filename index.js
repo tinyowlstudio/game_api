@@ -349,7 +349,7 @@ app.get("/developers/:developerName/games", passport.authenticate('jwt', { sessi
 });
 
 // get all data of a single genre
-app.get("/genres/:genreName", passport.authenticate('jwt', { session: false }), async (req, res) => {
+app.get("/genre/:genreName", passport.authenticate('jwt', { session: false }), async (req, res) => {
   let selectedGenre = req.params.genreName;
   await Games.findOne({ "genre.name": selectedGenre }) //finds the first game that lists the genre
     .then((game) => {
@@ -368,7 +368,7 @@ app.get("/genres/:genreName", passport.authenticate('jwt', { session: false }), 
 });
 
 // get all games of a single genre
-app.get("/genres/:genreName/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
+app.get("/genre/:genreName/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Games.find({ "genre.name": req.params.genreName }) //finds the all games that lists the genre
     .then((games) => { 
       if (games.length > 0){ //if there is at least 1 game 
