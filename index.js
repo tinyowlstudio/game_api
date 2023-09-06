@@ -315,7 +315,7 @@ app.get('/games/:title', passport.authenticate('jwt', { session: false }), async
 });
 
 // get all data of a single developer
-app.get('/developers/:developerName', passport.authenticate('jwt', { session: false }), async (req, res) => { // NOTE TO SELF: req.params.developerName is derived from :developerName
+app.get('/developer/:developerName', passport.authenticate('jwt', { session: false }), async (req, res) => { // NOTE TO SELF: req.params.developerName is derived from :developerName
   await Games.findOne({ "developer.name": req.params.developerName }) //finds the first game with the same developer name as the parameter
     .then((game) => {
       if (game) {
@@ -332,7 +332,7 @@ app.get('/developers/:developerName', passport.authenticate('jwt', { session: fa
 
 
 // get all games of a certain developer
-app.get("/developers/:developerName/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
+app.get("/developer/:developerName/games", passport.authenticate('jwt', { session: false }), async (req, res) => {
   await Games.find({ "developer.name": req.params.developerName }) //finds the all games that lists the developer
     .then((games) => { 
       if (games.length > 0){ //if there is at least 1 game 
