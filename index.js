@@ -34,7 +34,7 @@ app.use(
 
 //Check origin
 const cors = require('cors');
-app.use(cors()); //allows all origins
+let allowedOrigins = ['http://localhost:8080','http://localhost:1234', 'https://vidjagamers.netlify.app', 'https://vidjagamers-779c791eee4b.herokuapp.com/'];
 
 
 
