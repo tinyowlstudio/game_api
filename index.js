@@ -12,26 +12,6 @@ const mongoose = require('mongoose');
 const Models = require('./models.js');
 const Games = Models.Game;
 const Users = Models.User;
-
-/** 
- * Database connection
- * @description connect to either local or online DB based on where its being run 
- */
-mongoose.connect( process.env.CONNECTION_URI || 'mongodb://localhost:27017/videogameDB', { useNewUrlParser: true, useUnifiedTopology: true });
-
-app.use(bodyParser.json());
-
-
-//logger for terminal only, not to write in log.txt
-app.use(morgan("common"));
-
-//Error Handling
-// MUST BE PLACED BEFORE app.listen
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-);
 //Changes ==================================
 const { S3Client, ListBucketsCommand, ListObjectsV2Command, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3')
 const fileUpload = require('express-fileupload')
@@ -73,6 +53,25 @@ s3Client.send(listBucketsCmd)
 
 //End Changes ==================================
 
+/** 
+ * Database connection
+ * @description connect to either local or online DB based on where its being run 
+ */
+mongoose.connect( process.env.CONNECTION_URI || 'mongodb://localhost:27017/videogameDB', { useNewUrlParser: true, useUnifiedTopology: true });
+
+app.use(bodyParser.json());
+
+
+//logger for terminal only, not to write in log.txt
+app.use(morgan("common"));
+
+//Error Handling
+// MUST BE PLACED BEFORE app.listen
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 //Check origin
 const cors = require('cors');
 app.use(cors()); //allows all origins
