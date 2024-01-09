@@ -32,25 +32,6 @@ app.use(
     extended: true,
   })
 );
-
-
-//Check origin
-const cors = require('cors');
-app.use(cors()); //allows all origins
-
-
-
-//links auth.js
-let auth = require('./auth')(app);
-//link passport module and js file
-const passport = require('passport');
-require('./passport');
-
-//Server-side validation
-const { check, validationResult } = require('express-validator');
-
-
-
 //Changes ==================================
 const { S3Client, ListBucketsCommand, ListObjectsV2Command, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3')
 const fileUpload = require('express-fileupload')
@@ -91,6 +72,23 @@ s3Client.send(listBucketsCmd)
   });
 
 //End Changes ==================================
+
+//Check origin
+const cors = require('cors');
+app.use(cors()); //allows all origins
+
+
+
+//links auth.js
+let auth = require('./auth')(app);
+//link passport module and js file
+const passport = require('passport');
+require('./passport');
+
+//Server-side validation
+const { check, validationResult } = require('express-validator');
+
+
 
 
 
