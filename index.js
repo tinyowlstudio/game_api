@@ -656,17 +656,29 @@ app.get("/featured", passport.authenticate('jwt', { session: false }), async (re
 //Changes ==================================
 
 //get all images
+
 app.get('/images', (req, res) => {
-  //grab all images
   let listObjectsParams = {
-      Bucket: bucketName,
-      Prefix: 'resized-images/' // changed
-  }
-  //
+    Bucket: bucketName,
+    Prefix: 'resized-images/' // changed
+  };
   s3Client.send(new ListObjectsV2Command(listObjectsParams))
-      .then((listObjectsResponse) => {
-          res.send(listObjectsResponse)
-  })
+    .then(async (listObjectsResponse) => {
+      //map contents to array
+      const imagePromises = listObjectsResponse.Contents.map(async (content) => {
+        const imageData = await s3Client.send(new GetObjectCommand({ Bucket: bucketName, Key: content.Key }));
+        return {
+          Key: content.Key,
+          Data: imageData.Body.toString('base64'), // Convert image data to for the html to read
+        };
+      });
+
+      const imagesData = await Promise.all(imagePromises);
+      res.json(imagesData);
+    })
+    .catch((error) => {
+      res.status(500).send({ error: 'Error fetching images' });
+    });
 });
 
 //upload image
@@ -696,7 +708,7 @@ app.get('/download/:fileName', async (req, res) => {
   //get the data based on the file
   const downloadParams = {
     Bucket: bucketName, 
-    Key: `resized-images/${req.params.fileName}`, // changed
+    Key: `original-images/${req.params.fileName}`, // changed back to downloading original not resized
   };
 
   getObjectCmd = new GetObjectCommand(downloadParams);
