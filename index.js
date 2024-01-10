@@ -681,6 +681,23 @@ app.get('/images', (req, res) => {
     });
 });
 
+//display one image
+app.get('/images/:fileName', async (req, res) => {
+  const imageParams = {
+    Bucket: bucketName, 
+    Key: `original-images/${req.params.fileName}`
+  };
+  getObjectCmd = new GetObjectCommand(imageParams);
+
+  try {//check to see if it uploads
+    const data = await s3Client.send(getObjectCmd);
+    data.Body.pipe(res);
+} catch (error) {//if it doesnt then send error
+    console.error('Couldnt find the image:', error);
+    return res.status(500).send('Theres an issue');
+}
+});
+
 //upload image
 app.post('/upload', async (req, res) => {
   const file = req.files.image;
