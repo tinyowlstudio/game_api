@@ -33,12 +33,20 @@ app.use(
   })
 );
 
-
 //Check origin
 const cors = require('cors');
 app.use(cors()); //allows all origins
 
-
+// Add CORS headers
+app.use(
+  cors({
+    allowedHeaders: ["authorization", "Content-Type"], // you can change the headers
+    exposedHeaders: ["authorization"], // you can change the headers
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false
+  })
+);
 
 //links auth.js
 let auth = require('./auth')(app);
