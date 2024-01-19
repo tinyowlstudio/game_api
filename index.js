@@ -38,15 +38,17 @@ const cors = require('cors');
 app.use(cors()); //allows all origins
 
 // Add CORS headers
-app.use(
-  cors({
-    allowedHeaders: ["authorization", "Content-Type"], // you can change the headers
-    exposedHeaders: ["authorization"], // you can change the headers
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    preflightContinue: false
-  })
-);
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*'); // Set to your specific origin in production
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200); // Pre-flight request response
+  } else {
+    next();
+  }
+});
 
 //links auth.js
 let auth = require('./auth')(app);
