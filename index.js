@@ -42,12 +42,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // Set to your specific origin in production
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200); // Pre-flight request response
-  } else {
-    next();
-  }
+  next();
 });
 
 //links auth.js
